@@ -56,6 +56,8 @@
     <Compile Include="Redis\Configuration\IAbpRedisModuleConfiguration.cs" />
     <Compile Include="Redis\Configuration\RedisConnectionProvider.cs" />
     <Compile Include="Redis\IAbpRedis.cs" />
+    <Compile Include="Redis\Impl\RedisDatabaseExtensions.cs" />
+    <Compile Include="Redis\Impl\SerializeUtil.cs" />
     <Compile Include="Redis\NullAbpRedis.cs">
       <SubType>Code</SubType>
     </Compile>
