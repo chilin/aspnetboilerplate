@@ -24,5 +24,7 @@ namespace Abp.Redis
         Task ZAddAsync(string key, double score, object value);
         List<object> ZRangeByScore(string key, double start = -1.0/0.0, double stop = 1.0/0.0);
         Task<List<object>> ZRangeByScoreAsync(string key, double start = -1.0/0.0, double stop = 1.0/0.0);
+        void ZRem(string key, object value);
+        Task ZRemAsync(string key, object value);
     }
 }

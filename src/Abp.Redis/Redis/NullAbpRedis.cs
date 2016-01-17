@@ -79,5 +79,15 @@ namespace Abp.Redis
         {
             throw new NotImplementedException();
         }
+
+        public void ZRem(string key, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ZRemAsync(string key, object value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

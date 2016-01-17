@@ -5,6 +5,7 @@ using Abp.Redis.Impl;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Abp.Redis
 {
@@ -40,7 +41,7 @@ namespace Abp.Redis
         {
             var objbyte = Database.StringGet(GetLocalizedKey(key));
             return objbyte.HasValue
-                ? SerializeUtil.Deserialize(objbyte)
+                ? JsonConvert.DeserializeObject(objbyte)
                 : null;
         }
 
@@ -53,7 +54,7 @@ namespace Abp.Redis
 
             Database.StringSet(
                 GetLocalizedKey(key),
-                SerializeUtil.Serialize(value),
+                JsonConvert.SerializeObject(value),
                 slidingExpireTime
                 );
         }
@@ -76,7 +77,7 @@ namespace Abp.Redis
             }
             Database.ListRightPush(
                 GetLocalizedKey(key),
-                SerializeUtil.Serialize(value)
+                JsonConvert.SerializeObject(value)
                 );
         }
 
@@ -88,23 +89,23 @@ namespace Abp.Redis
             }
             await Database.ListRightPushAsync(
                 GetLocalizedKey(key),
-                SerializeUtil.Serialize(value)
+                JsonConvert.SerializeObject(value)
                 );
         }
 
         public object LPop(string key)
         {
-            var objbyte = Database.ListLeftPop(key);
+            var objbyte = Database.ListLeftPop(GetLocalizedKey(key));
             return objbyte.HasValue
-                ? SerializeUtil.Deserialize(objbyte)
+                ? JsonConvert.DeserializeObject(objbyte)
                 : null;
         }
 
         public async Task<object> LPopAsync(string key)
         {
-            var objbyte = await Database.ListLeftPopAsync(key);
+            var objbyte = await Database.ListLeftPopAsync(GetLocalizedKey(key));
             return objbyte.HasValue
-                ? SerializeUtil.Deserialize(objbyte)
+                ? JsonConvert.DeserializeObject(objbyte)
                 : null;
         }
 
@@ -118,7 +119,7 @@ namespace Abp.Redis
                 GetLocalizedKey(key),
                 new SortedSetEntry[] {
                      new SortedSetEntry(
-                         SerializeUtil.Serialize(value),
+                         JsonConvert.SerializeObject(value),
                          score
                          )
                 }
@@ -135,7 +136,7 @@ namespace Abp.Redis
                 GetLocalizedKey(key),
                 new SortedSetEntry[] {
                      new SortedSetEntry(
-                         SerializeUtil.Serialize(value),
+                         JsonConvert.SerializeObject(value),
                          score
                          )
                 }
@@ -144,14 +145,14 @@ namespace Abp.Redis
 
         public List<object> ZRangeByScore(string key, double start = -1.0/0.0, double stop = 1.0/0.0)
         {
-            var objbytes = Database.SortedSetRangeByScore(key, start, stop);
+            var objbytes = Database.SortedSetRangeByScore(GetLocalizedKey(key), start, stop);
             if (objbytes.Length == 0) return null;
             var retval = new List<object>();
             foreach (var objbyte in objbytes)
             {
                 if (objbyte.HasValue)
                 {
-                    retval.Add(SerializeUtil.Deserialize(objbyte));
+                    retval.Add(JsonConvert.DeserializeObject(objbyte));
                 }
             }
             return retval;
@@ -159,14 +160,14 @@ namespace Abp.Redis
 
         public async Task<List<object>> ZRangeByScoreAsync(string key, double start = -1.0/0.0, double stop = 1.0/0.0)
         {
-            var objbytes = await Database.SortedSetRangeByScoreAsync(key, start, stop);
+            var objbytes = await Database.SortedSetRangeByScoreAsync(GetLocalizedKey(key), start, stop);
             if (objbytes.Length == 0) return null;
             var retval = new List<object>();
             foreach (var objbyte in objbytes)
             {
                 if (objbyte.HasValue)
                 {
-                    retval.Add(SerializeUtil.Deserialize(objbyte));
+                    retval.Add(JsonConvert.DeserializeObject(objbyte));
                 }
             }
             return retval;
@@ -174,7 +175,12 @@ namespace Abp.Redis
 
         public void ZRem(string key, object value)
         {
-            Database.SortedSetRemove(key, SerializeUtil.Serialize(value));
+            Database.SortedSetRemove(GetLocalizedKey(key), JsonConvert.SerializeObject(value));
+        }
+
+        public async Task ZRemAsync(string key, object value)
+        {
+            await Database.SortedSetRemoveAsync(GetLocalizedKey(key), JsonConvert.SerializeObject(value));
         }
 
         private string GetLocalizedKey(string key)
